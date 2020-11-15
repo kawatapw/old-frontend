@@ -1813,7 +1813,7 @@ class D {
 			nukeExt(
 				"osin_client",
 				"DELETE FROM osin_client WHERE id IN (SELECT client_id FROM osin_client_user WHERE user = ?)",
-				[$row["client_id"]],
+				[$row["client_id"]]
 			);
 			nuke("osin_client_user", "user", $uid);
 

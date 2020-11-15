@@ -2165,7 +2165,7 @@ function unlinkDiscord($uid) {
 	global $discordConfig;
 	$u = $GLOBALS["db"]->fetch(
         "SELECT discordid, roleid FROM discord_roles WHERE userid = ?",
-        [$uid],
+        [$uid]
     );
     if (!$u) {
         throw new DiscordAlreadyUnlinkedException();
@@ -2189,6 +2189,6 @@ function unlinkDiscord($uid) {
 		} catch (Exception $e) {}
 	}
 	$GLOBALS["db"]->execute(
-		"DELETE FROM discord_roles WHERE userid = ?", [$uid],
+		"DELETE FROM discord_roles WHERE userid = ?", [$uid]
 	);
 }
