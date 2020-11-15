@@ -364,31 +364,6 @@ function printPage($p) {
 				P::AdminViewReport();
 			break;
 
-			// Admin panel - Caker
-			case 128:
-				sessionCheckAdmin(Privileges::AdminCaker);
-				Fringuellina::PrintPage();
-			break;
-
-			// Admin panel - Edit caker
-			case 129:
-				sessionCheckAdmin(Privileges::AdminCaker);
-				Fringuellina::PrintInfoPage();
-			break;
-
-			// Admin panel - Caker list
-			// MARTIN GARRIX SI VOLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-			case 130:
-				sessionCheckAdmin(Privileges::AdminCaker);
-				Fringuellina::PrintCakesSummary();
-			break;
-
-			// Admin panel - Edit caker
-			case 131:
-				sessionCheckAdmin(Privileges::AdminCaker);
-				Fringuellina::PrintEditCake();
-			break;
-
 			// Admin panel - View anticheat reports
 			case 132:
 				sessionCheckAdmin(Privileges::AdminManageUsers);
@@ -447,19 +422,6 @@ function printPage($p) {
 			case 141:
 				sessionCheckAdmin(Privileges::AdminManageUsers);
 				P::AdminAnalyzeGRPC();
-			break;
-
-			case 142:
-				sessionCheckAdmin(Privileges::AdminCaker);
-				Fringuellina::Print142();
-			break;
-			case 143:
-				sessionCheckAdmin(Privileges::AdminCaker);
-				Fringuellina::Print143();
-			break;
-			case 144:
-				sessionCheckAdmin(Privileges::AdminCaker);
-				Fringuellina::Print144();
 			break;
 
 			// 404 page
@@ -583,12 +545,6 @@ function printAdminSidebar() {
 						if (hasPrivilege(Privileges::AdminWipeUsers)) {
 							echo '<li><a href="index.php?p=134"><i class="fa fa-undo"></i>	Restore scores</a></li>';
 						}
-
-						if (hasPrivilege(Privileges::AdminCaker))
-							echo Fringuellina::RAPButton();
-
-						if (hasPrivilege(Privileges::AdminCaker))
-							echo Fringuellina::RAPCakesListButton();
 
 						if (hasPrivilege(Privileges::AdminManageReports))
 							echo '<li><a href="index.php?p=126"><i class="fa fa-flag"></i>	Reports</a></li>';

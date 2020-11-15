@@ -165,18 +165,6 @@ try {
 			sessionCheckAdmin(Privileges::AdminManageReports);
 			D::UselessUsefulReport();
 		break;
-		case 'toggleCake':	// TODO
-			sessionCheckAdmin(Privileges::AdminCaker);
-			Fringuellina::ToggleCake();
-		break;
-		case 'removeCake':	// TODO
-			sessionCheckAdmin(Privileges::AdminCaker);
-			Fringuellina::RemoveCake();
-		break;
-		case 'saveCake':
-			sessionCheckAdmin(Privileges::AdminCaker);
-			Fringuellina::EditCake();
-		break;
 		case 'restoreScoresSearchUser':
 			sessionCheckAdmin(Privileges::AdminWipeUsers);
 			D::RestoreScoresSearchUser();
@@ -228,18 +216,6 @@ try {
 		case 'reloadChatChannels':
 			sessionCheckAdmin(Privileges::AdminManageServers);
 			D::ReloadChatChannels();
-		break;
-		case 'saveA':
-			sessionCheckAdmin(Privileges::AdminCaker);
-			Fringuellina::EditA();
-		break;
-		case 'toggleA':
-			sessionCheckAdmin(Privileges::AdminCaker);
-			Fringuellina::ToggleA();
-		break;
-		case 'removeA':
-			sessionCheckAdmin(Privileges::AdminCaker);
-			Fringuellina::RemoveA();
 		break;
 		case 'setFP':
 			sessionCheckAdmin(Privileges::AdminCaker);
