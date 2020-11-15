@@ -41,7 +41,6 @@ require_once $df.'/pages/Verify.php';
 require_once $df.'/pages/Welcome.php';
 require_once $df.'/pages/Discord.php';
 require_once $df.'/pages/BlockTotp2fa.php';
-require_once $df.'/../secret/fringuellina.php';
 $pages = [
 	new Login(),
 	new Beatmaps(),

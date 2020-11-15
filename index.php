@@ -330,7 +330,6 @@ switch ($p) {
 		// Admin cp - edit user
 
 	case 100: echo '<script src="./js/pipoli.js"></script>'; break;
-	case 141: echo '<script src="./secret/js/ornella.js"></script>'; break;
 
 	case 103:
 		echo '
