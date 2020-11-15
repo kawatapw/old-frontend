@@ -75,9 +75,6 @@ class P {
 		printAdminPanel('yellow', 'fa fa-music fa-5x', number_format($rankRequests['count']), 'Rank requests');
 
 		echo '</div>';
-		// Pipoli integration
-		echo '<div id="pipoli" class="row" style="margin-bottom: 0;"></div>';
-		echo '<div style="text-align: right;"><i>Data provided by Pipoli. <a href="https://status.ripple.moe" target="_blank">Full status page here.</a></i></div>';
 		// Recent plays table
 		echo '<table class="table table-striped table-hover" style="margin-top: 20px;">
 		<thead>
