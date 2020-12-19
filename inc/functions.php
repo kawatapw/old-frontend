@@ -183,6 +183,7 @@ function setTitle($p) {
 			140 => 'Find users with badge',
 			141 => 'Analyze score',
 			142 => 'View osu! version logs',
+			144 => 'User Wipes'
 		];
 		if (isset($namesRipple[$p])) {
 			return __maketitle('Ripple', $namesRipple[$p]);
@@ -423,6 +424,18 @@ function printPage($p) {
 				sessionCheckAdmin(Privileges::AdminManageUsers);
 				P::AdminAnalyzeGRPC();
 			break;
+
+			// Admin panel - Set wipes
+			case 143:
+				sessionCheckAdmin(Privileges::AdminWipeUsers);
+				P::AdminSetWipes();
+			break;
+
+			// Admin panel - User wipes
+			case 144:
+				sessionCheckAdmin(Privileges::AdminWipeUsers);
+				P::AdminUserWipes();
+					break;
 
 			// 404 page
 			default:
@@ -1649,6 +1662,15 @@ function printBubble($userID, $username, $message, $time, $through) {
 		<b>' . $username . '</b> ' . $message . '<br>
 		<span style="font-size: 80%">' . timeDifference($time, time()) .' through <i>' . $through . '</i></span>
 	</div>';*/
+}
+
+function printBubbleUserWipes($modid, $username, $text, $time, $evidence) {
+	echo '
+	<img class="circle" src="' . URL::Avatar() . '/' . $modid . '">
+	<div class="bubble">
+		<b>' . $username . '</b> ' . $text . '<br>
+		<span style="font-size: 80%">' . timeDifference($time, time()) .' - Evidence: <i>' . $evidence . '</i></span>
+	</div>';
 }
 
 function rapLog($message, $userID = -1, $through = "RAP") {

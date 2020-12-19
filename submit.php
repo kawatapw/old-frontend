@@ -221,8 +221,11 @@ try {
 			sessionCheckAdmin(Privileges::AdminCaker);
 			D::SetFalsePositive();
 		break;
-		default:
-			throw new Exception('Invalid action value');
+		case 'setWipes':
+			sessionCheckAdmin(Privileges::AdminWipeUsers);
+			D::setWipes();
+			default:
+				throw new Exception('Invalid action value');
 	}
 }
 catch(Exception $e) {

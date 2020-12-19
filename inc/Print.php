@@ -636,6 +636,8 @@ class P {
 									echo '<a href="index.php?p=110&id='.$_GET['id'].'" class="btn btn-success">Edit badges</a>';
 								}
 								echo '	<a href="index.php?p=104&id='.$_GET['id'].'" class="btn btn-info">Change identity</a>';
+								echo '	<a href="index.php?p=143&id='.$_GET['id'].'" class="btn btn-info">Set wipes count</a>';
+								echo '	<a href="index.php?p=144&id='.$_GET['id'].'" class="btn btn-success">User Wipes</a>';
 								if (hasPrivilege(Privileges::UserDonor, $_GET["id"])) {
 									echo '	<a onclick="sure(\'submit.php?action=removeDonor&id='.$_GET['id'].'&csrf='.csrfToken().'\');" class="btn btn-danger">Remove donor</a>';
 								}
@@ -738,6 +740,65 @@ class P {
 			echo '</tbody></form>';
 			echo '</table>';
 			echo '<div class="text-center"><button type="submit" form="system-settings-form" class="btn btn-primary">Change identity</button></div>';
+			echo '</div>';
+		}
+		catch(Exception $e) {
+			// Redirect to exception page
+			redirect('index.php?p=102&e='.$e->getMessage());
+		}
+	}
+
+	/*
+	 * AdminSetWipes
+	 * Prints the admin panel set wipes page
+	*/
+	public static function AdminSetWipes() {
+		try {
+			// Get user data
+			$userData = $GLOBALS['db']->fetch('SELECT * FROM users WHERE id = ?', $_GET['id']);
+			$userStatsData = $GLOBALS['db']->fetch('SELECT * FROM users_stats WHERE id = ?', $_GET['id']);
+			// Check if this user exists
+			if (!$userData || !$userStatsData) {
+				throw new Exception("That user doesn't exist");
+			}
+			// Print edit user stuff
+			echo '<div id="wrapper">';
+			printAdminSidebar();
+			echo '<div id="page-content-wrapper">';
+			// Maintenance check
+			self::MaintenanceStuff();
+			// Print Success if set
+			if (isset($_GET['s']) && !empty($_GET['s'])) {
+				self::SuccessMessageStaccah($_GET['s']);
+			}
+			// Print Exception if set
+			if (isset($_GET['e']) && !empty($_GET['e'])) {
+				self::ExceptionMessageStaccah($_GET['e']);
+			}
+			echo '<p align="center"><font size=5><i class="fa fa-eraser"></i>	Set wipes count</font></p>';
+			echo '<table class="table table-striped table-hover table-50-center">';
+			echo '<tbody><form id="system-settings-form" action="submit.php" method="POST">
+			<input name="csrf" type="hidden" value="'.csrfToken().'">
+			<input name="action" value="setWipes" hidden>';
+			echo '<tr>
+			<td>Username</td>
+			<td><p class="text-center"><input type="text" name="username" class="form-control" value="'.$userData['username'].'" readonly></td>
+			</tr>';
+			echo '<tr>
+			<td>ID</td>
+			<td><p class="text-center"><input type="number" name="id" class="form-control" value="'.$userData['id'].'" readonly></td>
+			</tr>';
+			echo '<tr>
+			<td>Current wipes</td>
+			<td><p class="text-center"><input type="number" name="cwipes" class="form-control" value="'.$userData['wipes'].'" readonly></td>
+			</tr>';
+			echo '<tr>
+			<td>New wipes</td>
+			<td><p class="text-center"><input type="number" name="nwipes" class="form-control"></td>
+			</tr>';
+			echo '</tbody></form>';
+			echo '</table>';
+			echo '<div class="text-center"><button type="submit" form="system-settings-form" class="btn btn-primary">Set wipes count</button></div>';
 			echo '</div>';
 		}
 		catch(Exception $e) {
@@ -1243,6 +1304,54 @@ class P {
 			echo ' | ';
 		if ($logs)
 			echo '<a href="index.php?p=116&page='.($page+1).'&foka='.$foka.'">Next page</a> ></p>';
+		// Template end
+		echo '</div>';
+	}
+
+	/*
+	 * AdminUserWipes
+	 * Prints the user wipes page
+	*/
+	public static function AdminUserWipes() {
+		// Get data
+		$first = false;
+		if (isset($_GET["from"])) {
+			$from = $_GET["from"];
+			$first = current($GLOBALS["db"]->fetch("SELECT id FROM users_wipes ORDER BY datetime DESC LIMIT 1")) == $from;
+		} else {
+			$from = current($GLOBALS["db"]->fetch("SELECT id FROM users_wipes ORDER BY datetime DESC LIMIT 1"));
+			$first = true;
+		}
+		$logs = $GLOBALS['db']->fetchAll('SELECT users_wipes.*, users.username FROM users_wipes LEFT JOIN users ON users_wipes.modid = users.id WHERE users_wipes.userid = ? ORDER BY users_wipes.datetime DESC', [$_GET['id']]);
+		echo '<div id="wrapper">';
+		printAdminSidebar();
+		echo '<div id="page-content-wrapper" style="text-align: left;">';
+		// Maintenance check
+		self::MaintenanceStuff();
+		// Print Success if set
+		if (isset($_GET['s']) && !empty($_GET['s'])) {
+			self::SuccessMessageStaccah($_GET['s']);
+		}
+		// Print Exception if set
+		if (isset($_GET['e']) && !empty($_GET['e'])) {
+			self::ExceptionMessageStaccah($_GET['e']);
+		}
+		// Header
+		echo '<span class="centered"><h2><i class="fa fa-eraser"></i>User wipes</h2></span>';
+		// Main page content here
+		echo '<div class="bubbles-container">';
+		if (!$logs) {
+			printBubbleUserWipes(999, "You", "have reached the end of the life the universe and everything. Now go fuck a donkey.", time()-(43*60), "The Hitchhiker's Guide to the Galaxy");
+		} else {
+			$lastDay = -1;
+			foreach ($logs as $entry) {
+				$currentDay = date("z", $entry["datetime"]);
+				if ($lastDay != $currentDay)
+					echo'<div class="line"><div class="line-text"><span class="label label-primary">' . date("d/m/Y", $entry["datetime"]) . '</span></div></div>';
+				printBubbleUserWipes($entry["modid"], $entry["username"], $entry["text"], $entry["datetime"], $entry["evidence"]);
+				$lastDay = $currentDay;
+			}
+		}
 		// Template end
 		echo '</div>';
 	}
@@ -2765,6 +2874,10 @@ WHERE users.$kind = ? LIMIT 1", [$u]);
 				<option value="1">Relax</option>
 			</select>
 			</td>
+			</tr>';
+			echo '<tr>
+			<td><p>Any link to an evidence that the player is unlegit.</p><p>This can be a video, a replay, or any sort of proof.</p></td>
+			<td><p class="text-center"><input type="text" name="evidence" class="form-control" value="'.$_GET["evidence"].'"></td>
 			</tr>';
 
 			echo '</tbody></form>';

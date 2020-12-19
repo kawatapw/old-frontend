@@ -540,6 +540,47 @@ class D {
 	}
 
 	/*
+	 * setWipes
+	 * Set wipes function (ADMIN CP)
+	*/
+	public static function setWipes() {
+		try {
+			// Check if everything is set
+			if (!isset($_POST['id']) || !is_numeric($_POST['nwipes']) || empty($_POST['id']) || empty($_POST['username'])) {
+				throw new Exception('Nice troll.');
+			}
+
+			// Check if we can edit this user
+			$privileges = $GLOBALS["db"]->fetch("SELECT privileges FROM users WHERE id = ? LIMIT 1", [$_POST["id"]]);
+			if (!$privileges) {
+				throw new Exception("User doesn't exist");
+			}
+
+			// check if the value is not fucked
+			if ($_POST['nwipes'] > -1 && $_POST['nwipes'] < 4) {
+				$GLOBALS['db']->execute('UPDATE users SET wipes = ? WHERE id = ? LIMIT 1', [$_POST['nwipes'], $_POST["id"]]);
+				// log to log
+				rapLog(sprintf("has updated %s's wipes from %s/3 to %s/3", $_POST['username'], $_POST['cwipes'], $_POST['nwipes']));
+				redirect('index.php?p=102&s=ok');
+			} else {
+				throw new Exception('what the fuck are you doing?');
+			}
+		}
+			// redisConnect();
+			// $GLOBALS["redis"]->publish("peppy:change_username", json_encode([
+			// 	"userID" => intval($_POST["id"]),
+			// 	"newUsername" => $_POST["newu"]
+			// ]));
+			// // rap log
+			// rapLog(sprintf("has changed %s's username to %s", $_POST["oldu"], $_POST["newu"]));
+			// // Done, redirect to success page
+		catch(Exception $e) {
+			// Redirect to Exception page
+			redirect('index.php?p=102&e='.$e->getMessage());
+		}
+	}
+
+	/*
 	 * SaveBadge
 	 * Save badge function (ADMIN CP)
 	*/
@@ -935,7 +976,7 @@ class D {
 	*/
 	public static function WipeAccount() {
 		try {
-			if (!isset($_POST['id']) || empty($_POST['id'])) {
+			if (!isset($_POST['id']) || empty($_POST['id']) || (!isset($_POST['evidence']) || empty($_POST['evidence']))) {
 				throw new Exception('Invalid request');
 			}
 			$userData = $GLOBALS["db"]->fetch("SELECT username, privileges FROM users WHERE id = ? LIMIT 1", [$_POST["id"]]);
@@ -988,11 +1029,52 @@ class D {
 				}
 			}
 
-			// RAP log
-			rapLog(sprintf("has wiped %s's account", $username));
-
-			// Done
-			redirect('index.php?p=102&s=User scores and stats have been wiped!');
+			// Check wipe
+			if (isRestricted($_POST["id"])) {
+				// log to wipes
+				$GLOBALS['db']->execute("INSERT INTO users_wipes (id, userid, modid, datetime, evidence, text) VALUES (NULL, ?, ?, ?, ?, ?);", [$_POST['id'], $_SESSION["userid"], time(), $_POST['evidence'], "has wiped " . $username . ", wipes not touched since user is already restricted."]);
+				// log to rap
+				rapLog(sprintf("has wiped %s's account, wipes not touched since user is already restricted.", $username));
+				// set wipes back to zero, just in case
+				$GLOBALS['db']->execute('UPDATE users SET wipes = 0 WHERE id = ? LIMIT 1', [$_POST['id']]);
+				// redirect
+				redirect('index.php?p=102&s=User scores and stats have been wiped. Since this player is already restricted, not touching wipe count.');
+			} else {
+				$strikeCount = $GLOBALS['db']->fetch("SELECT wipes FROM users WHERE id = ? LIMIT 1", [$_POST["id"]]);
+				if ($strikeCount["wipes"] > 2) {
+					// we want to restrict the user if he has more than 3 wipes.
+					$banDateTime = time();
+					$newPrivileges = $userData["privileges"] | Privileges::UserNormal;
+					$newPrivileges &= ~Privileges::UserPublic;
+					removeFromLeaderboard($_POST['id']);
+					$GLOBALS['db']->execute('UPDATE users SET privileges = ?, ban_datetime = ? WHERE id = ? LIMIT 1', [$newPrivileges, $banDateTime, $_POST['id']]);
+					updateBanBancho($_POST["id"]);
+					// reset wipes
+					$GLOBALS['db']->execute('UPDATE users SET wipes = 0 WHERE id = ? LIMIT 1', [$_POST['id']]);
+					// log to wipes
+					$GLOBALS['db']->execute("INSERT INTO users_wipes (id, userid, modid, datetime, evidence, text) VALUES (NULL, ?, ?, ?, ?, ?);", [$_POST['id'], $_SESSION["userid"], time(), $_POST['evidence'], "has wiped " . $username . ", wipe 4/3, restricted!"]);
+					// log to RAP
+					rapLog(sprintf("has wiped %s's account, wipe 4/3, restricted!", $username));
+					// redirect
+					redirect('index.php?p=102&s=User has been restricted since they has more than 3 wipes!');
+				} else {
+					// just to be sure no one messed around
+					if ($strikeCount["wipes"] < 0) {
+						$GLOBALS['db']->execute('UPDATE users SET wipes = 0 WHERE id = ? LIMIT 1', [$_POST['id']]);
+					} else {
+						$GLOBALS['db']->execute('UPDATE users SET wipes = wipes + 1 WHERE id = ? LIMIT 1', [$_POST['id']]);
+					}
+					// Remove from leaderboards
+					removeFromLeaderboard($_POST['id']);
+					$newStrikeCount = $strikeCount["wipes"] + 1;
+					// log to wipes
+					$GLOBALS['db']->execute("INSERT INTO users_wipes (id, userid, modid, datetime, evidence, text) VALUES (NULL, ?, ?, ?, ?, ?);", [$_POST['id'], $_SESSION["userid"], time(), $_POST['evidence'], "has wiped " . $username . ", wipe " . $newStrikeCount . "/3."]);
+					// log to RAP logs
+					rapLog(sprintf("has wiped %s's account, wipe %s/3", $username, $newStrikeCount));
+					// redirect
+					redirect('index.php?p=102&s=User scores and stats have been wiped.' );
+				}
+			}
 		}
 		catch(Exception $e) {
 			redirect('index.php?p=102&e='.$e->getMessage());
