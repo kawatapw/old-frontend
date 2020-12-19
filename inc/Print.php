@@ -1387,7 +1387,7 @@ class P {
 			self::ExceptionMessage($error[$_GET['e']]);
 		}
 		echo '<p align="center">
-		<object data="images/logos/new.svg" type="image/svg+xml" class="animated bounceIn ripple-logo"></object>
+		<object data="images/logos/logo.png" type="image/png" class="animated bounceIn ripple-logo"></object>
 		</p>';
 		// Home alert
 		self::HomeAlert();

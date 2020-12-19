@@ -493,7 +493,7 @@ function printNavbar() {
 							</button>';
 						}
 						global $isBday;
-						echo $isBday ? '<a class="navbar-brand" href="index.php"><i class="fa fa-birthday-cake"></i><img src="images/logos/text.svg" style="display: inline; padding-left: 10px;"></a>' : '<a class="navbar-brand" href="index.php"><img src="images/logos/text.svg"></a>';
+						echo $isBday ? '<a class="navbar-brand" href="index.php"><i class="fa fa-birthday-cake"></i><img src="images/logos/text.png" style="display: inline; padding-left: 10px;"></a>' : '<a class="navbar-brand" href="index.php"><img src="images/logos/text.png"></a>';
 					echo '</div>
 					<div class="navbar-collapse collapse">';
 	// Left elements
@@ -534,7 +534,7 @@ function printAdminSidebar() {
 	echo '<div id="sidebar-wrapper" class="collapse" aria-expanded="false">
 					<ul class="sidebar-nav">
 						<li class="sidebar-brand">
-							<a href="#"><b>R</b>ipple <b>A</b>dmin <b>P</b>anel</a>
+							<a href="#"><b>K</b>awata <b>A</b>dmin <b>P</b>anel</a>
 						</li>
 						<li><a href="index.php?p=100"><i class="fa fa-tachometer-alt"></i>	Dashboard</a></li>';
 
