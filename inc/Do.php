@@ -213,12 +213,18 @@ class D {
 			} else {
 				$ha = '';
 			}
+			if (isset($_POST['da'])) {
+				$da = $_POST['da'];
+			} else {
+				$da = 0;
+			}
 			// Save new values
 			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'website_maintenance' LIMIT 1", [$wm]);
 			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'game_maintenance' LIMIT 1", [$gm]);
 			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'registrations_enabled' LIMIT 1", [$r]);
 			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'website_global_alert' LIMIT 1", [$ga]);
 			$GLOBALS['db']->execute("UPDATE system_settings SET value_string = ? WHERE name = 'website_home_alert' LIMIT 1", [$ha]);
+			$GLOBALS['db']->execute("UPDATE system_settings SET value_int = ? WHERE name = 'accept_donations' LIMIT 1", [$da]);
 			foreach (["std" , "taiko", "ctb", "mania"] as $key) {
 				if (!isset($_POST["aql_$key"]) || !is_numeric($_POST["aql_$key"])) {
 					continue;

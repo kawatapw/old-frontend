@@ -834,6 +834,7 @@ class P {
 		$ha = current($GLOBALS['db']->fetch("SELECT value_string FROM system_settings WHERE name = 'website_home_alert'"));
 		$aqlTmp = $GLOBALS['db']->fetchAll("SELECT `name`, value_string FROM system_settings WHERE `name` LIKE 'aql\_threshold\_%'");
 		$aql = [];
+		$da = current($GLOBALS['db']->fetch("SELECT value_int FROM system_settings WHERE name = 'accept_donations'"));
 		foreach ($aqlTmp as $row) {
 			$mode = explode("aql_threshold_", $row["name"]);
 			if (!is_numeric($row["value_string"]) || count($mode) < 1 || !in_array($mode[1], ["std", "taiko", "ctb", "mania"])) {
@@ -860,6 +861,11 @@ class P {
 			$selected[2][1] = 'selected';
 		} else {
 			$selected[2][2] = 'selected';
+		}
+		if ($da == 1) {
+			$selected[3][1] = 'selected';
+		} else {
+			$selected[3][2] = 'selected';
 		}
 		echo '<p align="center"><font size=5><i class="fa fa-cog"></i>	System settings</font></p>';
 		echo '<table class="table table-striped table-hover table-50-center">';
@@ -908,6 +914,15 @@ class P {
 			echo '<div class="padded"><input type="text" name="aql_' . $mode . '" placeholder="' . $mode . '" value="' . $value . '" class="form-control"></div>';
 		}
 		echo '<!-- <a style="width: 100%;" href="index.php" class="btn btn-warning"><i class="fa fa-thermometer-empty"></i>	<b>Unfreeze and uncache A/Q/L maps</b></a> -->
+		</td>
+		</tr>';
+		echo '<tr>
+		<td>Accept donations</td>
+		<td>
+		<select name="da" class="selectpicker" data-width="100%">
+		<option value="1" '.$selected[3][1].'>On</option>
+		<option value="0" '.$selected[3][2].'>Off</option>
+		</select>
 		</td>
 		</tr>';
 		echo '<tr class="success"><td colspan=2><p align="center">Click <a href="index.php?p=111">here</a> for bancho settings</p></td></tr>';
