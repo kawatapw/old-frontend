@@ -5,4 +5,5 @@ web/*.txt
 replays/*.osr
 replays_full/*.osr
 main_menu_icons/*.png
-phpmyadmin
+phpmyadmin/
+ips.txt
