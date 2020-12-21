@@ -1146,10 +1146,10 @@ class D {
 
 			if ($_GET["r"] == 0) {
 				// Unrank the map set and force osu!api update by setting latest update to 01/01/1970 top stampa piede
-				$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 0, ranked_status_freezed = 0, latest_update = 0 WHERE beatmapset_id = ?", [$bsid]);
+				$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 0, ranked_status_freezed = 0, latest_update = 0, ranked_on_kawata = 0 WHERE beatmapset_id = ?", [$bsid]);
 			} else {
 				// Rank the map set and freeze status rank
-				$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 2, ranked_status_freezed = 1 WHERE beatmapset_id = ?", [$bsid]);
+				$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 2, ranked_status_freezed = 1, ranked_on_kawata = 1 WHERE beatmapset_id = ?", [$bsid]);
 
 				// send a message to #announce
 				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
@@ -1451,7 +1451,7 @@ class D {
 				switch ($status) {
 					// Rank beatmap
 					case "rank":
-						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 2, ranked_status_freezed = 1 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
+						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 2, ranked_status_freezed = 1, ranked_on_kawata = 1 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
 
 						// Restore old scores
 						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = ? LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 3", [$beatmapID]);
@@ -1461,7 +1461,7 @@ class D {
 					// Force osu!api update (unfreeze)
 					case "update":
 						$updateCache = true;
-						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 0, ranked_status_freezed = 0 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
+						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 0, ranked_status_freezed = 0, ranked_on_kawata = 0 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
 						$result .= "$beatmapID's ranked status is the same from official osu!. | ";
 					break;
 
