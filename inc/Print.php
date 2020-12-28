@@ -28,16 +28,6 @@ class P {
 			$totalPP += $pp;
 		}*/
 		// $totalPP = "🍆";
-		$recentPlays = $GLOBALS['db']->fetchAll('
-		SELECT
-			beatmaps.song_name, scores.beatmap_md5, users.username,
-			scores.userid, scores.time, scores.score, scores.pp,
-			scores.play_mode, scores.mods
-		FROM scores
-		LEFT JOIN beatmaps ON beatmaps.beatmap_md5 = scores.beatmap_md5
-		LEFT JOIN users ON users.id = scores.userid
-		ORDER BY scores.id DESC
-		LIMIT 10');
 		$topPlays = [];
 		/*$topPlays = $GLOBALS['db']->fetchAll('SELECT
 			beatmaps.song_name, scores.beatmap_md5, users.username,
