@@ -45,7 +45,7 @@ class P {
 			$onlineUsers = $onlineUsers;
 		}
 		$reports = $GLOBALS['db']->fetch("SELECT COUNT(*) AS `count` FROM reports WHERE assigned = 0");
-		$rankRequests = $GLOBALS['db']->fetch("SELECT COUNT(*) AS `count` FROM rank_requests WHERE `time` >= UNIX_TIMESTAMP() - 86400 AND blacklisted = 0");
+		$rankRequests = $GLOBALS['db']->fetch("SELECT COUNT(*) AS `count` FROM rank_requests WHERE `time` >= UNIX_TIMESTAMP() - 604800 AND blacklisted = 0");
 		// Print admin dashboard
 		echo '<div id="wrapper">';
 		printAdminSidebar();
