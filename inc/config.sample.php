@@ -64,7 +64,7 @@ $ScoresConfig = [
 	"useNewBeatmapsTable" => true,		// 0: get beatmaps names from beatmaps_names (old php scores server)
 										// 1: get beatmaps names from beatmaps (LETS)
 	"api_key" => "",
-	"rankRequestsQueueSize" => 20,
+	"rankRequestsQueueSize" => 100,
 	"rankRequestsPerUser" => 2
 ];
 
