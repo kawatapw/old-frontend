@@ -1480,7 +1480,19 @@ class D {
 				// RAP Log
 				if ($logToRap)
 					rapLog(sprintf("has %s beatmap set %s", $status == "rank" ? "ranked" : "unranked", $bsid), $_SESSION["userid"]);
-			}
+      }
+      
+      // If this set, or any of its diffs was requested in the last 100 requests, send the user an email informing them.
+      $content = $GLOBALS["db"]->fetch("SELECT rank_requests.*, users.username, users.email FROM rank_requests LEFT JOIN users ON rank_requests.userid = users.id WHERE rank_requests.beatmapset_id = ? ORDER BY id", [$bsid])[0];
+      
+      if (sizeof($content) > 0) {
+        $email = $content["email"];
+        $name = $content["name"];
+        global $MailgunConfig;
+        $mailer = new SimpleMailgun($MailgunConfig);
+			  $mailer->Send('Ripple <noreply@'.$MailgunConfig['domain'].'>', $email, 'Rank Request Accepted', sprintf("Hello %s,<br/> your rank request for <a href='%s'>%s</a> has been accepted.<br/><br/>Kind Regards,<br/>Ripple", $name, 'http://'.$_SERVER['HTTP_HOST'].'/s/'.str($bsid)));
+      }
+      
 
 			// Update beatmap set from osu!api if
 			// at least one diff has been unfrozen
