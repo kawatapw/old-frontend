@@ -1488,9 +1488,10 @@ class D {
       if (sizeof($content) > 0) {
         $email = $content["email"];
         $name = $content["name"];
+
         global $MailgunConfig;
         $mailer = new SimpleMailgun($MailgunConfig);
-			  $mailer->Send('Ripple <noreply@'.$MailgunConfig['domain'].'>', $email, 'Rank Request Accepted', sprintf("Hello %s,<br/> your rank request for <a href='%s'>%s</a> has been accepted.<br/><br/>Kind Regards,<br/>Ripple", $name, 'http://'.$_SERVER['HTTP_HOST'].'/s/'.str($bsid)));
+			  $mailer->Send('Ripple <noreply@'.$MailgunConfig['domain'].'>', $email, 'Rank Request Accepted', sprintf("Hello %s,<br/> your rank request for <a href='%s'>%s</a> has been accepted.<br/><br/>Kind Regards,<br/>Ripple", $name, 'http://'.$_SERVER['HTTP_HOST'].'/'.$content["type"].'/'.str($bsid)));
       }
       
 
