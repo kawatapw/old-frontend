@@ -1391,7 +1391,7 @@ class D {
 					// Rank beatmap
 					case "rank":
 						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 2, ranked_status_freezed = 1 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
-						$result .= "$beatmapID has been ranked and its scores have been restored. | ";
+						$result .= "$beatmapID has been ranked | ";
 					break;
 
 					// Force osu!api update (unfreeze)
