@@ -1114,67 +1114,6 @@ class D {
 			redirect('index.php?p=99&e='.$e->getMessage());
 		}
 	}
-	
-	/*
-	 * ProcessRankRequest
-	 * Rank/unrank a beatmap
-	*/
-	public static function ProcessRankRequest() {
-		global $URL;
-		global $ScoresConfig;
-		try {
-			if (!isset($_GET["id"]) || !isset($_GET["r"]) || empty($_GET["id"]))
-				throw new Exception("no");
-
-			// Get beatmapset id
-			$requestData = $GLOBALS["db"]->fetch("SELECT * FROM rank_requests WHERE id = ? LIMIT 1", [$_GET["id"]]);
-			if (!$requestData)
-				throw new Exception("Rank request not found");
-
-			if ($requestData["type"] == "s") {
-				// We already have the beatmapset id
-				$bsid = $requestData["bid"];
-			} else {
-				// We have the beatmap but we don't have the beatmap set id.
-				$result = $GLOBALS["db"]->fetch("SELECT beatmapset_id FROM beatmaps WHERE beatmap_id = ? LIMIT 1", [$requestData["bid"]]);
-				if (!$result)
-					throw new Exception("Beatmap set id not found. Load the beatmap ingame and try again.");
-				$bsid = current($result);
-			}
-
-			// TODO: Save all beatmaps from a set in db with a given beatmap set id
-
-			if ($_GET["r"] == 0) {
-				// Unrank the map set and force osu!api update by setting latest update to 01/01/1970 top stampa piede
-				$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 0, ranked_status_freezed = 0, latest_update = 0, ranked_on_kawata = 0 WHERE beatmapset_id = ?", [$bsid]);
-			} else {
-				// Rank the map set and freeze status rank
-				$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 2, ranked_status_freezed = 1, ranked_on_kawata = 1 WHERE beatmapset_id = ?", [$bsid]);
-
-				// send a message to #announce
-				$bm = $GLOBALS["db"]->fetch("SELECT beatmapset_id, song_name FROM beatmaps WHERE beatmapset_id = ? LIMIT 1", [$bsid]);
-
-				$msg = "[https://osu.ppy.sh/s/" . $bsid . " " . $bm["song_name"] . "] is now ranked!";
-				$to = "#announce";
-				$requesturl = $URL["bancho"] . "/api/v1/fokabotMessage?k=" . urlencode($ScoresConfig["api_key"]) . "&to=" . urlencode($to) . "&msg=" . urlencode($msg);
-				$resp = getJsonCurl($requesturl);
-
-				/*if ($resp["message"] != "ok") {
-					rapLog("failed to send FokaBot message :( err: " . print_r($resp["message"], true));
-				}*/
-			}
-
-			// RAP log
-			rapLog(sprintf("has %s beatmap set %s", $_GET["r"] == 0 ? "unranked" : "ranked", $bsid), $_SESSION["userid"]);
-
-			// Done
-			redirect("index.php?p=117&s=野生のちんちんが現れる");
-		}
-		catch(Exception $e) {
-			redirect("index.php?p=117&e=".$e->getMessage());
-		}
-	}
-
 
 	/*
 	 * BlacklistRankRequest
@@ -1451,10 +1390,7 @@ class D {
 				switch ($status) {
 					// Rank beatmap
 					case "rank":
-						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 2, ranked_status_freezed = 1, ranked_on_kawata = 1 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
-
-						// Restore old scores
-						$GLOBALS["db"]->execute("UPDATE scores s JOIN (SELECT userid, MAX(score) maxscore FROM scores JOIN beatmaps ON scores.beatmap_md5 = beatmaps.beatmap_md5 WHERE beatmaps.beatmap_md5 = (SELECT beatmap_md5 FROM beatmaps WHERE beatmap_id = ? LIMIT 1) GROUP BY userid) s2 ON s.score = s2.maxscore AND s.userid = s2.userid SET completed = 3", [$beatmapID]);
+						$GLOBALS["db"]->execute("UPDATE beatmaps SET ranked = 2, ranked_status_freezed = 1 WHERE beatmap_id = ? LIMIT 1", [$beatmapID]);
 						$result .= "$beatmapID has been ranked and its scores have been restored. | ";
 					break;
 
@@ -1480,19 +1416,19 @@ class D {
 				// RAP Log
 				if ($logToRap)
 					rapLog(sprintf("has %s beatmap set %s", $status == "rank" ? "ranked" : "unranked", $bsid), $_SESSION["userid"]);
-      }
-      
-      // If this set, or any of its diffs was requested in the last 100 requests, send the user an email informing them.
-      $content = $GLOBALS["db"]->fetch("SELECT rank_requests.*, users.username, users.email FROM rank_requests LEFT JOIN users ON rank_requests.userid = users.id WHERE rank_requests.beatmapset_id = ? ORDER BY id", [$bsid])[0];
-      
-      if (sizeof($content) > 0) {
-        $email = $content["email"];
-        $name = $content["name"];
+			}
 
-        global $MailgunConfig;
-        $mailer = new SimpleMailgun($MailgunConfig);
-			  $mailer->Send('Ripple <noreply@'.$MailgunConfig['domain'].'>', $email, 'Rank Request Accepted', sprintf("Hello %s,<br/> your rank request for <a href='%s'>%s</a> has been accepted.<br/><br/>Kind Regards,<br/>Ripple", $name, 'http://'.$_SERVER['HTTP_HOST'].'/'.$content["type"].'/'.str($bsid)));
-      }
+			// If this set, or any of its diffs was requested in the last 100 requests, send the user an email informing them.
+			$content = $GLOBALS["db"]->fetch("SELECT rank_requests.*, users.username, users.email FROM rank_requests LEFT JOIN users ON rank_requests.userid = users.id WHERE rank_requests.beatmapset_id = ? ORDER BY id LIMIT 1", [$bsid]);
+
+			if ($content) {
+				$email = $content["email"];
+				$name = $content["name"];
+
+				global $MailgunConfig;
+				$mailer = new SimpleMailgun($MailgunConfig);
+				$mailer->Send('Ripple <noreply@'.$MailgunConfig['domain'].'>', $email, 'Rank Request Accepted', sprintf("Hello %s,<br/> your rank request for <a href='%s'>%s</a> has been accepted.<br/><br/>Kind Regards,<br/>Ripple", $name, 'https://'.$_SERVER['HTTP_HOST'].'/'.$content["type"].'/'.str($bsid)));
+			}
       
 
 			// Update beatmap set from osu!api if

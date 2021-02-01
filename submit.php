@@ -109,10 +109,6 @@ try {
 			sessionCheckAdmin(Privileges::AdminWipeUsers);
 			D::WipeAccount();
 		break;
-		/*case 'processRankRequest':
-			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
-			D::ProcessRankRequest();
-		break;*/
 		case 'blacklistRankRequest':	// TODO
 			sessionCheckAdmin(Privileges::AdminManageBeatmaps);
 			D::BlacklistRankRequest();
